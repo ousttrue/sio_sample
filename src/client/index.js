@@ -1,13 +1,15 @@
 "use strict";
 
-function create(target) {
+function setup(target) {
     const div = document.createElement('div');
-    div.appendChild(document.createTextNode('onLoad'));
+    div.appendChild(document.createTextNode('hello'));
     target.appendChild(div);
+    
+    this.socket = io.connect();
 }
 
 window.onload = () => {
 
-    create(document.getElementById('target'));
+    setup(document.getElementById('target'));
 
 };

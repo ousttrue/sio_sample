@@ -41,16 +41,23 @@ gulp.task('browser-sync', ['serve'], ()=>{
 
 gulp.task('server', () => {
     gulp.src(config.server_src)
-        .pipe(gulp.dest(config.server_dst));
+        .pipe(gulp.dest(config.server_dst))
+        .pipe(browserSync.stream())
+        ;
 });
 
 gulp.task('client', () => {
     gulp.src(config.client_src)
-        .pipe(gulp.dest(config.client_dst));
+        .pipe(gulp.dest(config.client_dst))
+        .pipe(browserSync.stream())
+        ;
 });
 
 gulp.task('build', ['server', 'client']);
 
-gulp.task('watch', ['build', 'browser-sync']);
+gulp.task('watch', ['build', 'browser-sync'], ()=>{
+    gulp.watch(config.server_src, ['server']);
+    gulp.watch(config.client_src, ['client']);
+});
 
 gulp.task('default', ['watch']);
