@@ -17,10 +17,14 @@ app
 import socketio = require('socket.io');
 const io = socketio(server);
 io.on('connection', (socket) => {
-    var clientAddress=socket.client.conn.remoteAddress;
+    var clientAddress = socket.client.conn.remoteAddress;
     console.log('connected: %s', clientAddress);
     socket.on('disconnect', () => {
         console.log('disconnected: %s', clientAddress);
+    });
+
+    socket.on('client-message', (data: any) => {
+        socket.emit('server-message', 'server clicked message');
     });
 });
 
