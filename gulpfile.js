@@ -10,6 +10,24 @@ const config = {
     app_port: 5000,
 };
 
+const execSync=require('child_process').execSync;
+function execInDir(cmd, path)
+{   
+    if(path){
+        var current=process.cwd();
+        console.log('chdir %s...', path);
+        process.chdir(path);
+    }
+    console.log(cmd);
+    execSync(cmd);
+    if(current){
+        process.chdir(current);
+    }
+}
+gulp.task('init', ()=>{
+    execInDir('tsd install', './src');
+});
+
 const browserSync = require('browser-sync').create();
 gulp.task('serve', () => {
     $.nodemon({
