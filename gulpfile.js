@@ -37,7 +37,7 @@ gulp.task('serve', () => {
         env: {
             port: config.app_port
         }
-    })
+    })  
         .on('readable', () => {
             this.stdout.on('data', (chunk) => {
                 if (/^start /.test(chunk)) {
