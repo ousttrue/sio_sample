@@ -1,4 +1,5 @@
-/// <reference path="../typings/tsd.d.ts" />
+/// <reference path="../typings.d.ts" />
+
 "use strict";
 
 import http = require('http');
@@ -16,20 +17,16 @@ app
 // socket.io
 import socketio = require('socket.io');
 const io = socketio(server);
+var client_map: {[id: string]: SocketIOHub.ClientInfo}={};
 io.on('connection', (socket) => {
     var clientAddress = socket.client.conn.remoteAddress;
     console.log('connected: %s', clientAddress);
     console.log("online id: " + socket.id);
-    socket.broadcast.emit("online", { id: socket.id });
 
     socket.on('disconnect', () => {
         //console.log('disconnected: %s', clientAddress);
         console.log("offline id: " + socket.id);
-        socket.broadcast.emit("offline", { id: socket.id });
-    });
-
-    socket.on('client-message', (data: any) => {
-        socket.emit('server-message', 'server clicked message');
+        socket.broadcast.emit("offline", socket.id);
     });
 
     socket.on("message", (obj:any) => {
@@ -37,13 +34,23 @@ io.on('connection', (socket) => {
         var message = obj.message;
 
         console.log("message id: " + id + " message: " + message);
-        io.emit("message", { id: id, message: message });
+        socket.broadcast.emit("message", { id: id, message: message });
     });
     
-    socket.on('chat message', (msg: string)=>{
-        console.log('chat message: %s', msg);
-        io.emit('chat message', msg);
-        //socket.broadcast.emit('chat message', msg);
+    socket.on('client-info', (info: SocketIOHub.ClientInfo)=>{
+        console.log('client-info: %s', JSON.stringify(info, null, 2));
+        
+        // send list
+        for(var key in client_map){
+            socket.emit('online', client_map[key]);
+        }
+        
+        // send added
+        info.ipaddr= socket.handshake.headers['x-forwarded-for'] || socket.handshake.address;
+        client_map[socket.id]=info;
+        socket.broadcast.emit('online', info);
+        
+        console.log('clients', JSON.stringify(client_map, null, 2));
     });
 });
 

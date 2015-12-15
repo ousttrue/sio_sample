@@ -1,4 +1,5 @@
 /// <reference path="../typings/tsd.d.ts" />
+/// <reference path="../typings.d.ts" />
 "use strict";
 
 declare module io {
@@ -7,47 +8,62 @@ declare module io {
 
 class Client {
     socket: SocketIO.Socket;
+    target: HTMLElement;
+    clients: HTMLElement;
+    client_map: { [id: string]: HTMLElement } = {};
 
     constructor() {
+    }
+
+    setup(target: HTMLElement, clients: HTMLElement) {
+        this.target = target;
+        this.clients = clients;
+
         this.socket = io.connect();
 
         this.socket.on("connect", () => {
-            /*
-            let id = this.socket.conn.id;
-            this.println("Connected ID: " + id);
-            */
+
+            var clientInfo: SocketIOHub.ClientInfo = {
+                socketid: this.socket.id,
+                useragent: window.navigator.userAgent,
+            };
+
+            this.println('self: ' + JSON.stringify(clientInfo, null, 2));
+            this.socket.emit('client-info', clientInfo);
         });
 
         this.socket.on("message", (obj: any) => {
             this.println("message id: " + obj.id + " message: " + obj.message);
         });
 
-        this.socket.on("online", (obj: any) => {
-            this.println("online id: " + obj.id);
+        this.socket.on("online", (info: SocketIOHub.ClientInfo) => {
+            this.println('online: ' + JSON.stringify(info, null, 2));
+            this.addClient(info);
         });
 
-        this.socket.on("offline", (obj: any) => {
-            this.println("offline id: " + obj.id);
+        this.socket.on("offline", (socketid: string) => {
+            this.println('offline: ' + socketid);
+            this.removeClient(socketid);
         });
     }
 
-    setup(target: Element) {
-        const div = document.createElement('div');
-        div.appendChild(document.createTextNode('hello socket.io'));
-        target.appendChild(div);
+    println(message: any) {
+        this.target.innerHTML += message + "<br>";
+    }
 
-        this.socket.on('server-message', (data: any) => {
-            const div = document.createElement('div');
-            div.appendChild(document.createTextNode(data.toString()));
-            target.appendChild(div);
-        });
+    addClient(info: SocketIOHub.ClientInfo) {
 
-        const button = document.createElement('button');
-        button.appendChild(document.createTextNode('send'));
-        button.onclick = (ev: MouseEvent) => {
-            this.socket.emit('client-message', 'clicked');
-        };
-        target.appendChild(button);
+        const client = document.createElement('div');
+        client.innerHTML = JSON.stringify(info);
+        this.client_map[info.socketid] = client;
+        this.clients.appendChild(client);
+
+    }
+
+    removeClient(socketid: string) {
+
+        this.clients.removeChild(this.client_map[socketid]);
+
     }
 
     send() {
@@ -56,15 +72,14 @@ class Client {
 
         document.getElementById("message").nodeValue = "";
     }
-
-    println(message: any) {
-        document.getElementById("messages").innerHTML += message + "<br>";
-    }
 }
 var client = new Client();
 
 window.onload = () => {
 
-    client.setup(document.getElementById('target'));
+    client.setup(
+        document.getElementById('messages')
+        , document.getElementById('clients')
+    );
 
 };
