@@ -79,14 +79,38 @@ io.on('connection', (socket) => {
         //console.log('clients', JSON.stringify(client_map, null, 2));
     });
 
-    socket.on('client-transform', (t: Transform) => {
-        client_map[socket.id].transform = t;
-        console.log(JSON.stringify(t));
+    socket.on('client-update', (update: SocketIOHub.ClientUpdate) => {
+        let info=client_map[socket.id];
+        for(var key in update){
+            if(key==='socketid')continue;
+            
+            if(key==='transform'){
+                let src=(<any>update)[key];
+                let transform: SocketIOHub.Transform={
+                    position: {
+                        x: src.px,
+                        y: src.py,
+                        z: src.pz
+                    },
+                    rotation: {
+                        x: src.rx,
+                        y: src.ry,
+                        z: src.rz,
+                        w: src.rw
+                    }
+                };               
+                (<any>info)[key]=transform;
+
+                delete (<any>update)[key];
+                (<any>update)[key]=transform;
+            }
+            else{
+                (<any>info)[key]=(<any>update)[key];
+            }
+        }
         
-        socket.broadcast.emit('client-update', {
-            socketid: socket.id,
-            transform: t
-        });
+        console.log(JSON.stringify(update, null, 2));
+        socket.broadcast.emit('client-update', update);
     });
 });
 

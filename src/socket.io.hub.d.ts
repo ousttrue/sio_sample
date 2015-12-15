@@ -17,10 +17,14 @@ declare namespace SocketIOHub {
         rotation?: Quaternion;
     }
     
-    export interface ClientInfo{
-        ipaddr?: string;
-        socketid?: string;
-        useragent: string;
+    export interface ClientUpdate {
+        socketid: string;
         transform?: Transform;
+        deviceorientation?: Vector3;
+    }
+    
+    export interface ClientInfo extends ClientUpdate{
+        ipaddr?: string;
+        useragent: string;
     }
 }

@@ -6,11 +6,6 @@ declare module io {
     export function connect(): SocketIO.Socket;
 }
 
-interface ClientUpdate {
-    socketid: string;
-    transform?: SocketIOHub.Transform;
-}
-
 /**
  * 日付をフォーマットする
  * @param  {Date}   date     日付
@@ -98,11 +93,10 @@ class Client {
             this.removeClient(socketid);
         });
 
-        this.socket.on("client-update", (update: ClientUpdate) => {
+        this.socket.on("client-update", (update: SocketIOHub.ClientUpdate) => {
             var client = this.client_map[update.socketid];
             for (var key in update) {
                 if (key === 'socketid') continue;
-
                 (<any>client)[key] = (<any>update)[key];
             }
 
@@ -176,9 +170,18 @@ class Client {
     }
 
     startSensor() {
-        const $rotation = $("#rotation");
+
         window.addEventListener("deviceorientation", (e) => {
-            $rotation.text(String() + e.alpha);
+
+            var update: SocketIOHub.ClientUpdate = {
+                socketid: this.socket.id,
+                deviceorientation: {
+                    x: e.alpha,
+                    y: e.beta,
+                    z: e.gamma
+                }
+            };
+            this.socket.emit('client-update', update);
         });
 
         const $motion = $("#motion");
