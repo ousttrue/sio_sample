@@ -1,0 +1,69 @@
+* {
+    box-sizing: border-box;
+}
+
+html, body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%; 
+}
+
+#motion{
+    position: absolute;
+    top: 0;
+}
+
+#rotation{
+    position: absolute;
+    top: 50px;
+}
+
+#clients{
+    position: absolute;
+    left: 0;
+    width: 50%;
+    top: 0;
+    bottom: 200px; 
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+.client {
+    background-color: #fff;
+    cursor: pointer;
+    border: solid 1px #fff;
+    padding: 0.5em;
+}
+.client .ipaddr{
+    font-weight: 800;
+    margin: 0.5em;
+}
+.client .ua{
+    margin: 0.5em;
+}
+    .client:nth-child(even) {
+        background-color: #ccf;
+    }
+    .client.selected{
+        border: solid 1px #88f;
+    }
+
+#messages{
+    position: absolute;
+    bottom: 0;
+    height: 200px;
+    width: 100%;
+    overflow-y: scroll;
+}
+
+.log{
+    background-color: #fff;
+    padding: 0.5em;
+}
+.log .date{
+    font-weight: 800;
+    margin: 0.5em;
+}
+    .log:nth-child(even){
+        background-color: #ccf;
+    }

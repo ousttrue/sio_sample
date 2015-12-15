@@ -1,19 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Document</title>
-    <script type="text/javascript" src="/socket.io/socket.io.js"></script>    
+    <title>Socket.IO.Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <script src="index.js"></script>
 </head>
+
 <body>
 
+    <div>
+        <div id="clients">
+        </div>
+    </div>
+
     <div id="messages">
-        <h1>Messages</h1>
+        <div class="items"></div>
     </div>
-    
-    <div id="clients">
-        <h1>Clients</h1>
-    </div>
+
 </body>
+
 </html>
