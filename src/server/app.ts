@@ -58,20 +58,35 @@ io.on('connection', (socket) => {
         }
         
         // send added
-        info.ipaddr = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address;
-        console.log('ipaddr: %s', info.ipaddr);
-        if(info.ipaddr){
-            info.ipaddr=info.ipaddr.split(/:+/)[2];
+        let ip: string = socket.client.request.headers['x-forwarded-for']
+            || socket.client.conn.remoteAddress
+            || socket.conn.remoteAddress
+            || socket.request.connection.remoteAddress;
+        if (ip === '::1') {
+            ip = '127.0.0.1';
         }
+        else if (ip.match(/^::ffff:/)) {
+            ip = ip.substr('::ffff:'.length);
+        }
+        else {
+        }
+        console.log('ipaddr: %s', ip);
+        info.ipaddr = ip;
+        
         client_map[socket.id] = info;
         socket.broadcast.emit('online', info);
 
-        console.log('clients', JSON.stringify(client_map, null, 2));
+        //console.log('clients', JSON.stringify(client_map, null, 2));
     });
 
-    socket.on('transform', (t: Transform)=>{
-        client_map[socket.id].transform=t;
+    socket.on('client-transform', (t: Transform) => {
+        client_map[socket.id].transform = t;
         console.log(JSON.stringify(t));
+        
+        socket.broadcast.emit('client-update', {
+            socketid: socket.id,
+            transform: t
+        });
     });
 });
 
